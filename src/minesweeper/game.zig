@@ -409,7 +409,7 @@ pub fn toggle_flag(game: *GameState, flag_pos: u16_2) void {
     }
 }
 
-fn is_board_won(board: [][]CellState) bool {
+fn is_board_won(board: []const []const CellState) bool {
     for (board) |column| {
         for (column) |cell| {
             if (cell.is_covered and !cell.is_mine)
@@ -418,4 +418,70 @@ fn is_board_won(board: [][]CellState) bool {
     }
 
     return true;
+}
+
+test "is_board_won_false_cells_covered_not_mines" {
+    var board = [_][]const CellState{
+        &.{
+            .{ .is_covered = true, .is_mine = false }, //covered empty space
+            .{ .is_covered = false },
+            .{ .is_covered = false },
+        },
+        &.{
+            .{ .is_covered = false },
+            .{ .is_covered = false },
+            .{ .is_covered = false },
+        },
+        &.{
+            .{ .is_covered = false },
+            .{ .is_covered = false },
+            .{ .is_covered = false },
+        },
+    };
+
+    try std.testing.expectEqual(is_board_won(&board), false);
+}
+
+test "is_board_won_true_cells_covered_except_mines" {
+    var board = [_][]const CellState{
+        &.{
+            .{ .is_covered = true, .is_mine = true },
+            .{ .is_covered = false },
+            .{ .is_covered = false },
+        },
+        &.{
+            .{ .is_covered = false },
+            .{ .is_covered = false },
+            .{ .is_covered = false },
+        },
+        &.{
+            .{ .is_covered = false },
+            .{ .is_covered = false },
+            .{ .is_covered = false },
+        },
+    };
+
+    try std.testing.expectEqual(is_board_won(&board), true);
+}
+
+test "is_board_won_true_all_cells_uncovered" {
+    var board = [_][]const CellState{
+        &.{
+            .{ .is_covered = false },
+            .{ .is_covered = false },
+            .{ .is_covered = false },
+        },
+        &.{
+            .{ .is_covered = false },
+            .{ .is_covered = false },
+            .{ .is_covered = false },
+        },
+        &.{
+            .{ .is_covered = false },
+            .{ .is_covered = false },
+            .{ .is_covered = false },
+        },
+    };
+
+    try std.testing.expectEqual(is_board_won(&board), true);
 }
